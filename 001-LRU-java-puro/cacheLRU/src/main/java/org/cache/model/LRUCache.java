@@ -7,23 +7,28 @@ import java.util.Optional;
 public class LRUCache<K, V> {
   private final int capacity;
   private final Map<K, Node<K, V>> cache;
+  private final long ttl; // TTL global
   private Node<K, V> head; //mais recente
   private Node<K, V> tail; //menos recente
 
-  public LRUCache(int capacity) {
+  public LRUCache(int capacity, long ttl) {
     if (capacity <= 0) {
       throw new IllegalArgumentException("Capacidade deve ser maior que zero: " + capacity);
     }
+    if (ttl <= 0) {
+      throw new IllegalArgumentException("TTL deve ser maior que zero: " + ttl);
+    }
     this.capacity = capacity;
+    this.ttl = ttl;
     this.cache = new HashMap<>(capacity);
-    this.head = new Node<>(null, null); // Dummy head
-    this.tail = new Node<>(null, null); // Dummy tail
+    this.head = new Node<>(null, null, Long.MAX_VALUE); // Dummy head
+    this.tail = new Node<>(null, null, Long.MAX_VALUE); // Dummy tail
     head.next = tail;
     tail.prev = head;
   }
 
   public Optional<V> get(K key) {
-    if (!cache.containsKey(key)) {
+    if (!isValid(key)) {
       return Optional.empty();
     }
     Node<K, V> node = cache.get(key);
@@ -32,9 +37,11 @@ public class LRUCache<K, V> {
   }
 
   public void put(K key, V value) {
+    long expireAt = System.currentTimeMillis() + ttl;
     if (cache.containsKey(key)) {
       Node<K, V> node = cache.get(key);
       node.value = value; // Update value
+      node.expireAt = expireAt; // Update timestamp
       addToFront(node);
     } else {
       if (cache.size() >= capacity) {
@@ -42,7 +49,7 @@ public class LRUCache<K, V> {
         cache.remove(lruNode.key);
         removeNode(lruNode);
       }
-      Node<K, V> newNode = new Node<>(key, value);
+      Node<K, V> newNode = new Node<>(key, value, expireAt);
       addNode(newNode);
       cache.put(key, newNode);
     }
@@ -66,7 +73,20 @@ public class LRUCache<K, V> {
   }
 
   public boolean containsKey(K key) {
-    return cache.containsKey(key);
+    return isValid(key);
+  }
+
+  private boolean isValid(K key) {
+    Node<K, V> node = cache.get(key);
+    if (node == null) {
+      return false;
+    }
+    if (node.isExpired()) {
+      cache.remove(key);
+      removeNode(node);
+      return false;
+    }
+    return true;
   }
 
   public void printCache() {
