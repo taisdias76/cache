@@ -8,8 +8,8 @@ public class LRUCache<K, V> {
   private final int capacity;
   private final Map<K, Node<K, V>> cache;
   private final long ttl; // TTL global
-  private Node<K, V> head; //mais recente
-  private Node<K, V> tail; //menos recente
+  private Node<K, V> head; // mais recente
+  private Node<K, V> tail; // menos recente
 
   public LRUCache(int capacity, long ttl) {
     if (capacity <= 0) {
