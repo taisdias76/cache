@@ -6,7 +6,8 @@ public class Main {
   public static void main(String[] args) {
     LRUCache<String, Integer> cache = new LRUCache<>(3, 800);
 
-    System.out.println("[Teste 1] Get em cache vazio: " + cache.get("A")); // Deve retornar Optional.empty
+    System.out.println(
+        "[Teste 1] Get em cache vazio: " + cache.get("A")); // Deve retornar Optional.empty
     System.out.println("\n-----------");
 
     System.out.println("[Teste 2] Put simples: ");
@@ -24,13 +25,16 @@ public class Main {
     System.out.println("\n-----------");
     System.out.println("[Teste 3] Put além da capacidade -> eviction do LRU correto: ");
     cache.put("D", 4);
-    System.out.println("Cache após inserir D (deve evictar B): " + cache.containsKey("B")); // Deve retornar false
+    System.out.println(
+        "Cache após inserir D (deve evictar B): " + cache.containsKey("B")); // Deve retornar false
     cache.printCache();
 
     System.out.println("\n-----------");
     System.out.println("[Teste 4] Get move para frente -> item acessado não é evicted");
     cache.get("A");
-    System.out.println("Cache após acessar A (deve mover A para frente): " + cache.containsKey("A")); // Deve retornar true
+    System.out.println(
+        "Cache após acessar A (deve mover A para frente): "
+            + cache.containsKey("A")); // Deve retornar true
     cache.printCache();
 
     System.out.println("\n-----------");
@@ -42,9 +46,13 @@ public class Main {
     System.out.println("[Teste 6] Capacidade 1 -> comportamento correto: ");
     LRUCache<String, Integer> singleCache = new LRUCache<>(1, 800);
     singleCache.put("X", 10);
-    System.out.println("Cache com capacidade 1 após inserir X: " + singleCache.containsKey("X")); // Deve retornar true
+    System.out.println(
+        "Cache com capacidade 1 após inserir X: "
+            + singleCache.containsKey("X")); // Deve retornar true
     singleCache.put("Y", 20);
-    System.out.println("Cache com capacidade 1 após inserir Y (deve evictar X): " + singleCache.containsKey("X")); // Deve retornar false
+    System.out.println(
+        "Cache com capacidade 1 após inserir Y (deve evictar X): "
+            + singleCache.containsKey("X")); // Deve retornar false
 
     System.out.println("\n-----------");
     System.out.println("[Teste 7] Capacidade 0 -> deve lançar exceção: ");
@@ -64,7 +72,9 @@ public class Main {
     } catch (InterruptedException e) {
       System.out.println("Exceção lançada corretamente para interrupção: " + e.getMessage());
     }
-    System.out.println("Cache após esperar 600ms (deve expirar A): " + ttl.containsKey("A")); // Deve retornar false
+    System.out.println(
+        "Cache após esperar 600ms (deve expirar A): "
+            + ttl.containsKey("A")); // Deve retornar false
     System.out.println("get(A) após expirar: " + ttl.get("A")); // Deve retornar Optional.empty
 
     System.out.println("\n-----------");
@@ -82,7 +92,9 @@ public class Main {
     } catch (InterruptedException e) {
       System.out.println("Exceção lançada corretamente para interrupção: " + e.getMessage());
     }
-    System.out.println("Cache após acessar A e esperar 600ms (deve manter A): " + slidingTTL.containsKey("A")); // Deve retornar true
+    System.out.println(
+        "Cache após acessar A e esperar 600ms (deve manter A): "
+            + slidingTTL.containsKey("A")); // Deve retornar true
     slidingTTL.printCache();
   }
 }
