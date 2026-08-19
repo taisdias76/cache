@@ -21,3 +21,12 @@ O que acontece quando o cache está cheio
 **TTL (Time To Live) -** expira por tempo. Simples e previsível.    
 **FIFO -** primeiro a entrar, primeiro a sair. Simples, mas ignora padrões de acesso.
 
+## CI com Maven
+
+Este repositório usa um workflow único no GitHub Actions que detecta automaticamente qualquer projeto Maven dentro do repositório e executa `mvn test` em cada um deles.
+
+- Estrutura: um workflow geral na pasta `.github/workflows/java-ci.yml` com estratégia de matrix.
+- Trigger: push nas branches `main`/`master` e em pull requests.
+
+Quando um novo projeto com `pom.xml` for adicionado, o pipeline já passa a validá-lo sem precisar criar um workflow separado.
+
