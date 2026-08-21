@@ -1,0 +1,63 @@
+name: Java CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  discover-projects:
+    name: Discover Maven projects
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.set-matrix.outputs.projects }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect Maven modules
+        id: set-matrix
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          projects = []
+          for pom in Path('.').rglob('pom.xml'):
+              if '.git' in pom.parts:
+                  continue
+              projects.append(str(pom.parent).replace('\\', '/'))
+
+          projects = sorted(set(projects))
+          output = json.dumps(projects)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f"projects={output}\n")
+          print(f"Detected Maven projects: {output}")
+          PY
+
+  build:
+    name: Build ${{ matrix.project }}
+    needs: discover-projects
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.discover-projects.outputs.projects) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Validate with Maven
+        run: mvn -B -f "${{ matrix.project }}/pom.xml" test
