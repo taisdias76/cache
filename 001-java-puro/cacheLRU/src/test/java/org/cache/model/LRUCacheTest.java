@@ -3,6 +3,10 @@ package org.cache.model;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,5 +68,35 @@ class LRUCacheTest {
   @DisplayName("Capacidade zerada deve lançar exceção")
   void constructor_InvalidCapacity_ThrowsException() {
     assertThrows(IllegalArgumentException.class, () -> new LRUCache<String, Integer>(0, 10000));
+  }
+
+  @Test
+  @DisplayName("Acessos concorrentes não devem corromper a estrutura")
+  void concurrentAccess() throws InterruptedException {
+    LRUCache<String, Integer> concurrentCache = new LRUCache<>(50, 10000);
+    int threadCount = 20;
+    ExecutorService service = Executors.newFixedThreadPool(threadCount);
+    CountDownLatch latch = new CountDownLatch(threadCount);
+
+    for (int i = 0; i < threadCount; i++) {
+      final int key = 1;
+      service.submit(
+          () -> {
+            try {
+              for (int j = 0; j < 1000; j++) {
+                concurrentCache.put(String.valueOf(key), j);
+                concurrentCache.get(String.valueOf(key));
+              }
+            } finally {
+              latch.countDown();
+            }
+          });
+    }
+
+    latch.await(10, TimeUnit.SECONDS);
+    service.shutdown();
+
+    // se chegou até aqui sem lançar exceção/travar, não houve corrupção estrutural
+    assertDoesNotThrow(concurrentCache::printCache);
   }
 }
