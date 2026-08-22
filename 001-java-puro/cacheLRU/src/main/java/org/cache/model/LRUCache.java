@@ -27,7 +27,7 @@ public class LRUCache<K, V> {
     tail.prev = head;
   }
 
-  public Optional<V> get(K key) {
+  public synchronized Optional<V> get(K key) {
     if (!isValid(key)) {
       return Optional.empty();
     }
@@ -36,7 +36,7 @@ public class LRUCache<K, V> {
     return Optional.of(node.value);
   }
 
-  public void put(K key, V value) {
+  public synchronized void put(K key, V value) {
     long expireAt = System.currentTimeMillis() + ttl;
     if (cache.containsKey(key)) {
       Node<K, V> node = cache.get(key);
@@ -72,7 +72,7 @@ public class LRUCache<K, V> {
     node.next.prev = node.prev;
   }
 
-  public boolean containsKey(K key) {
+  public synchronized boolean containsKey(K key) {
     return isValid(key);
   }
 
@@ -89,7 +89,7 @@ public class LRUCache<K, V> {
     return true;
   }
 
-  public void printCache() {
+  public synchronized void printCache() {
     Node<K, V> current = head.next;
     while (current != tail) {
       System.out.println("Key: " + current.key + ", Value: " + current.value);
