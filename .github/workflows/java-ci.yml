@@ -28,7 +28,11 @@ jobs:
 
           projects = []
           for pom in Path('.').rglob('pom.xml'):
+              if pom == Path('pom.xml'):
+                  continue
               if '.git' in pom.parts:
+                  continue
+              if 'target' in pom.parts:
                   continue
               projects.append(str(pom.parent).replace('\\', '/'))
 

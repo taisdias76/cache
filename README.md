@@ -21,12 +21,22 @@ O que acontece quando o cache está cheio
 **TTL (Time To Live) -** expira por tempo. Simples e previsível.    
 **FIFO -** primeiro a entrar, primeiro a sair. Simples, mas ignora padrões de acesso.
 
+## Estrutura do repositório
+
+Este repositório foi organizado em módulos Maven para facilitar a evolução do estudo de cache:
+
+- `001-java-puro/` - implementação em Java puro com política LRU.
+- `002-redis/` - módulo inicial para a versão com Redis.
+- `.github/workflows/java-ci.yml` - pipeline de validação automática com Maven.
+- `pom.xml` - Maven parent/root para gerenciar os módulos do repositório.
+
 ## CI com Maven
 
-Este repositório usa um workflow único no GitHub Actions que detecta automaticamente qualquer projeto Maven dentro do repositório e executa `mvn test` em cada um deles.
+A pipeline do GitHub Actions é feita no nível do repositório, e detecta qualquer módulo Maven configurado, executando `mvn test` em cada projeto.
 
-- Estrutura: um workflow geral na pasta `.github/workflows/java-ci.yml` com estratégia de matrix.
+- Vantagem: o mesmo fluxo serve para os módulos já existentes e para novos estudos que venham a entrar no repositório.
 - Trigger: push nas branches `main`/`master` e em pull requests.
+- Estratégia: matrix, com um job por módulo Maven detectado.
 
-Quando um novo projeto com `pom.xml` for adicionado, o pipeline já passa a validá-lo sem precisar criar um workflow separado.
+Quando um novo projeto com `pom.xml` for adicionado em uma pasta do repositório, ele passa a ser validado automaticamente sem a necessidade de criar um workflow adicional.
 
